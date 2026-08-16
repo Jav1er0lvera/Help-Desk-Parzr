@@ -16,6 +16,10 @@ public static class ErrorMessages
     public const string ApiCategoriesListError = "No se pudieron obtener las categorías desde el servidor.";
     public const string WebCategoriesListError = "Ocurrió un error al cargar las categorías.";
 
+    // Categorías — obtener una (para el modal de edición)
+    public const string ApiCategoriesGetError = "No se pudo obtener la categoría desde el servidor.";
+    public const string WebCategoriesGetError = "Ocurrió un error al cargar la categoría.";
+
     // Categorías — crear
     public const string ApiCategoriesCreateError = "No se pudo crear la categoría en el servidor.";
     public const string WebCategoriesCreateError = "Ocurrió un error al crear la categoría.";

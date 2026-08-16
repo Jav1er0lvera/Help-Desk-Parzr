@@ -41,4 +41,13 @@ public static class CategoryMappings
         Description = form.Description,
         PlatformId = form.PlatformId,
     };
+
+    // DTO (SDK) → Form (Web): datos crudos para prellenar el modal de edición.
+    // A diferencia de MapToViewModel, NO normaliza la descripción a "—" (se está editando).
+    public static CategoryFormModel ToFormModel(this HelpDesk.SDK.Categories.CategoryDto dto) => new()
+    {
+        Name = dto.Name,
+        Description = dto.Description,
+        PlatformId = dto.PlatformId,
+    };
 }

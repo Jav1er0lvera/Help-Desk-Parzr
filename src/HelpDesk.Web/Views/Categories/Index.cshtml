@@ -97,7 +97,7 @@
                             <td class="t-date">@item.CreatedAt.ToString("dd/MM/yyyy")</td>
                             <td style="display:flex;gap:8px">
                                 <button class="btn btn-ghost row-action" style="padding:5px 10px;font-size:12px"
-                                    onclick="openEditModal('@item.Id', '@item.Name', '@item.Description', '@item.PlatformId')">
+                                    onclick="editCategory('@item.Id')">
                                     Editar
                                 </button>
                                 <button class="btn btn-ghost row-action" style="padding:5px 10px;font-size:12px;color:var(--red)"
@@ -167,12 +167,18 @@ function openModal() {
     document.getElementById('modal').classList.add('show');
 }
 
-function openEditModal(id, name, desc, platformId) {
+async function editCategory(id) {
+    // Trae los datos FRESCOS del servidor (no los del render de la lista),
+    // así el modal refleja el estado actual aunque otro usuario haya cambiado la categoría.
+    const response = await fetch(`/Categories/GetById/${id}`);
+    if (!response.ok) { showToast('No se pudo cargar la categoría'); return; }
+    const c = await response.json();   // { name, description, platformId }
+
     document.getElementById('modal-title').textContent = 'Editar categoría';
     document.getElementById('edit-id').value = id;
-    document.getElementById('cat-name').value = name;
-    document.getElementById('cat-desc').value = desc === '—' ? '' : desc;
-    document.getElementById('cat-platform').value = platformId || '';
+    document.getElementById('cat-name').value = c.name ?? '';
+    document.getElementById('cat-desc').value = c.description ?? '';
+    document.getElementById('cat-platform').value = c.platformId ?? '';
     document.getElementById('modal').classList.add('show');
 }
 

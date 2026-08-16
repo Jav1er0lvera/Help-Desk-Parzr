@@ -50,6 +50,20 @@ public class CategoriesService : BaseService
         apiErrorMessage: ErrorMessages.ApiCategoriesListError,
         webErrorMessage: ErrorMessages.WebCategoriesListError);
 
+    // Trae la categoría FRESCA del servidor para prellenar el modal de edición
+    // (evita editar sobre datos viejos del render de la lista).
+    public Task<ServiceResult<CategoryFormModel>> GetCategoryById(Guid id) =>
+        ExecuteAsync(async () =>
+        {
+            var dto = await _categoriesApi.GetByIdAsync(id);
+            if (dto is null)
+                return ServiceResult<CategoryFormModel>.Fail(ErrorMessages.WebCategoriesGetError);
+
+            return ServiceResult<CategoryFormModel>.Ok(dto.ToFormModel());
+        },
+        apiErrorMessage: ErrorMessages.ApiCategoriesGetError,
+        webErrorMessage: ErrorMessages.WebCategoriesGetError);
+
     public Task<ServiceResult<bool>> CreateCategory(CategoryFormModel form) =>
         ExecuteAsync(async () =>
         {

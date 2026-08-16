@@ -27,6 +27,14 @@ public class CategoriesController : Controller
         return View(result.Data ?? new CategoryListViewModel());
     }
 
+    // Devuelve la categoría fresca (JSON) para prellenar el modal de edición.
+    [HttpGet]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _categoriesService.GetCategoryById(id);
+        return result.Success ? Json(result.Data) : StatusCode(500, result.Message);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromBody] CategoryFormModel form)
