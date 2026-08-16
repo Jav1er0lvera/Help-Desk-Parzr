@@ -1,4 +1,5 @@
 using HelpDesk.Infrastructure.Persistence;
+using HelpDesk.SDK;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,10 @@ builder.Services.AddHttpClient("api", client =>
 {
     client.BaseAddress = new Uri("https+http://api");
 }).AddServiceDiscovery();
+
+// SDK (Refit): registra los clientes tipados (ICategoriesApi, ITicketsApi, ...).
+// Aspire resuelve "api" y aplica service discovery vía ConfigureHttpClientDefaults.
+builder.Services.AddHelpDeskSdk("https+http://api");
 
 var app = builder.Build();
 
