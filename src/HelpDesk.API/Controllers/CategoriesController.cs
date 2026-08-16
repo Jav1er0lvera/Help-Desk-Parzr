@@ -27,6 +27,15 @@ public class CategoriesController : ControllerBase
         return Ok(categories);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var category = await _db.Categories
+            .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+        if (category is null) return NotFound();
+        return Ok(category);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CategoryRequest request)
     {
