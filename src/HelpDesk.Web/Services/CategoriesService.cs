@@ -2,7 +2,7 @@ using HelpDesk.SDK.Categories;
 using HelpDesk.SDK.Platforms;
 using HelpDesk.Web.Common;
 using HelpDesk.Web.Mapping;
-using HelpDesk.Web.ViewModels;
+using HelpDesk.Web.ViewModels.Category;
 
 namespace HelpDesk.Web.Services;
 

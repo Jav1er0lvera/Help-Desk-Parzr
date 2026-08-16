@@ -1,4 +1,4 @@
-namespace HelpDesk.Web.ViewModels;
+namespace HelpDesk.Web.ViewModels.Category;
 
 /// <summary>
 /// Datos que ENTRAN desde el modal de crear/editar (tipo "Request", CONCEPTOS #4).

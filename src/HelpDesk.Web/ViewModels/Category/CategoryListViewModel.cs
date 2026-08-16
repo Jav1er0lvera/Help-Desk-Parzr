@@ -1,6 +1,6 @@
 using HelpDesk.SDK.Platforms;
 
-namespace HelpDesk.Web.ViewModels;
+namespace HelpDesk.Web.ViewModels.Category;
 
 /// <summary>
 /// ViewModel de la pantalla de Categorías: la lista a pintar y las plataformas

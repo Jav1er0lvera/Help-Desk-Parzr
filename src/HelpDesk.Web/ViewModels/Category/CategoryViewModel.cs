@@ -1,4 +1,4 @@
-namespace HelpDesk.Web.ViewModels;
+namespace HelpDesk.Web.ViewModels.Category;
 
 /// <summary>
 /// Datos de una categoría listos para mostrar en la vista. Todo viene ya resuelto

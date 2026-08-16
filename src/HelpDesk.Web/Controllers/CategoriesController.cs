@@ -1,5 +1,5 @@
 using HelpDesk.Web.Services;
-using HelpDesk.Web.ViewModels;
+using HelpDesk.Web.ViewModels.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
