@@ -35,6 +35,9 @@ builder.Services.AddHttpClient("api", client =>
 // Aspire resuelve "api" y aplica service discovery vía ConfigureHttpClientDefaults.
 builder.Services.AddHelpDeskSdk("https+http://api");
 
+// Capa de servicio del Web (patrón de PR 2). Registrar uno por módulo migrado.
+builder.Services.AddScoped<HelpDesk.Web.Services.CategoriesService>();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();

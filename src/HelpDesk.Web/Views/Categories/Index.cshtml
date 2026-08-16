@@ -1,3 +1,4 @@
+@model HelpDesk.Web.ViewModels.Category.CategoryListViewModel
 @{
     Layout = null;
     ViewData["Title"] = "Categorías";
@@ -66,6 +67,12 @@
     </div>
 
     <div class="content">
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-error" style="margin-bottom:16px;padding:12px 16px;border-radius:8px;background:#FEE2E2;color:#991B1B">
+                @ViewBag.Error
+            </div>
+        }
         <div class="card">
             <div class="card-header">
                 <span class="card-title">Categorías del sistema</span>
@@ -75,7 +82,32 @@
                     <tr><th>Nombre</th><th>Plataforma</th><th>Descripción</th><th>Fecha</th><th></th></tr>
                 </thead>
                 <tbody id="categories-body">
-                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px">Cargando...</td></tr>
+                @if (Model.Categories.Count == 0)
+                {
+                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px">Aún no hay categorías.</td></tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Categories)
+                    {
+                        <tr>
+                            <td><div class="t-title">@item.Name</div></td>
+                            <td style="font-size:13px;color:var(--text-secondary)">@item.PlatformName</td>
+                            <td style="color:var(--text-secondary);font-size:13px">@item.Description</td>
+                            <td class="t-date">@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td style="display:flex;gap:8px">
+                                <button class="btn btn-ghost row-action" style="padding:5px 10px;font-size:12px"
+                                    onclick="editCategory('@item.Id')">
+                                    Editar
+                                </button>
+                                <button class="btn btn-ghost row-action" style="padding:5px 10px;font-size:12px;color:var(--red)"
+                                    onclick="deleteCategory('@item.Id')">
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
                 </tbody>
             </table>
         </div>
@@ -94,6 +126,10 @@
                 <label>Plataforma</label>
                 <select id="cat-platform">
                     <option value="">Selecciona una plataforma</option>
+                    @foreach (var p in Model.Platforms)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
                 </select>
             </div>
             <div class="field-group">
@@ -121,50 +157,8 @@
 
 <script>
 const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
-let platforms = [];
 
-async function loadPlatforms() {
-    const response = await fetch('/Platforms/GetAll');
-    if (!response.ok) return;
-    platforms = await response.json();
-    const select = document.getElementById('cat-platform');
-    select.innerHTML = '<option value="">Selecciona una plataforma</option>' +
-        platforms.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-}
-
-async function loadCategories() {
-    const response = await fetch('/Categories/GetAll');
-    if (!response.ok) return;
-    const categories = await response.json();
-    const tbody = document.getElementById('categories-body');
-    if (categories.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px">No hay categorías aún</td></tr>';
-        return;
-    }
-    tbody.innerHTML = categories.map(c => {
-        const platform = platforms.find(p => p.id === c.platformId);
-        return `
-        <tr>
-            <td><div class="t-title">${c.name}</div></td>
-            <td style="font-size:13px;color:var(--text-secondary)">${platform ? platform.name : '—'}</td>
-            <td style="color:var(--text-secondary);font-size:13px">${c.description ?? '—'}</td>
-            <td class="t-date">${new Date(c.createdAt).toLocaleDateString('es-MX')}</td>
-            <td style="display:flex;gap:8px">
-                <button class="btn btn-ghost row-action" style="padding:5px 10px;font-size:12px"
-                    onclick="openEditModal('${c.id}', '${c.name}', '${c.description ?? ''}', '${c.platformId ?? ''}')">
-                    Editar
-                </button>
-                <button class="btn btn-ghost row-action" style="padding:5px 10px;font-size:12px;color:var(--red)"
-                    onclick="deleteCategory('${c.id}')">
-                    Eliminar
-                </button>
-            </td>
-        </tr>`;
-    }).join('');
-}
-
-async function openModal() {
-    await loadPlatforms();
+function openModal() {
     document.getElementById('modal-title').textContent = 'Nueva categoría';
     document.getElementById('edit-id').value = '';
     document.getElementById('cat-name').value = '';
@@ -173,13 +167,18 @@ async function openModal() {
     document.getElementById('modal').classList.add('show');
 }
 
-async function openEditModal(id, name, desc, platformId) {
-    await loadPlatforms();
+async function editCategory(id) {
+    // Trae los datos FRESCOS del servidor (no los del render de la lista),
+    // así el modal refleja el estado actual aunque otro usuario haya cambiado la categoría.
+    const response = await fetch(`/Categories/GetById/${id}`);
+    if (!response.ok) { showToast('No se pudo cargar la categoría'); return; }
+    const c = await response.json();   // { name, description, platformId }
+    //console.log('editCategory', c);
     document.getElementById('modal-title').textContent = 'Editar categoría';
     document.getElementById('edit-id').value = id;
-    document.getElementById('cat-name').value = name;
-    document.getElementById('cat-desc').value = desc;
-    document.getElementById('cat-platform').value = platformId;
+    document.getElementById('cat-name').value = c.name ?? '';
+    document.getElementById('cat-desc').value = c.description ?? '';
+    document.getElementById('cat-platform').value = c.platformId ?? '';
     document.getElementById('modal').classList.add('show');
 }
 
@@ -201,9 +200,7 @@ async function saveCategory() {
     });
 
     if (response.ok) {
-        closeModal();
-        showToast(id ? 'Categoría actualizada ✓' : 'Categoría creada ✓');
-        await loadCategories();
+        location.reload();
     } else {
         showToast('Error al guardar la categoría');
     }
@@ -217,8 +214,7 @@ async function deleteCategory(id) {
     });
 
     if (response.ok) {
-        showToast('Categoría eliminada ✓');
-        await loadCategories();
+        location.reload();
     } else {
         showToast('Error al eliminar la categoría');
     }
@@ -234,10 +230,6 @@ function showToast(msg) {
 }
 
 document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadPlatforms();
-    await loadCategories();
-});
 </script>
 
 </body>

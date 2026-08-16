@@ -7,6 +7,9 @@ public interface ICategoriesApi
     [Get("/api/v1/categories")]
     Task<List<CategoryDto>> GetAllAsync();
 
+    [Get("/api/v1/categories/{id}")]
+    Task<CategoryDto> GetByIdAsync(Guid id);
+
     [Post("/api/v1/categories")]
     Task<CategoryDto> CreateAsync([Body] CategoryRequestDto request);
 

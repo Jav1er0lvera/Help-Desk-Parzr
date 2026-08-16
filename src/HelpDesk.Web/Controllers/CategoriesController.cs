@@ -1,6 +1,5 @@
-using System.Text;
-using System.Text.Json;
-
+using HelpDesk.Web.Services;
+using HelpDesk.Web.ViewModels.Category;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,74 +8,54 @@ namespace HelpDesk.Web.Controllers;
 [Authorize]
 public class CategoriesController : Controller
 {
-    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly CategoriesService _categoriesService;
 
-    public CategoriesController(IHttpClientFactory httpClientFactory)
+    public CategoriesController(CategoriesService categoriesService)
     {
-        _httpClientFactory = httpClientFactory;
+        _categoriesService = categoriesService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> Index()
     {
-        var client = _httpClientFactory.CreateClient("api");
-        var response = await client.GetAsync("/api/v1/categories");
+        var result = await _categoriesService.GetAllCategories();
 
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            return Content(json, "application/json");
-        }
+        if (!result.Success && !result.Warning)
+            ViewBag.Error = result.Message;
 
-        return StatusCode(500);
+        // Warn (lista vacía) o Fail: pasamos un VM vacío; la vista muestra "Aún no hay categorías."
+        return View(result.Data ?? new CategoryListViewModel());
     }
+
+    // Devuelve la categoría fresca (JSON) para prellenar el modal de edición.
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> GetById(Guid id)
     {
-        return View();
+        var result = await _categoriesService.GetCategoryById(id);
+        return result.Success ? Json(result.Data) : StatusCode(500, result.Message);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([FromBody] CategoryWebRequest request)
+    public async Task<IActionResult> Create([FromBody] CategoryFormModel form)
     {
-        var client = _httpClientFactory.CreateClient("api");
-        var json = JsonSerializer.Serialize(new { name = request.Name, description = request.Description, platformId = request.PlatformId });
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PostAsync("/api/v1/categories", content);
-
-        if (response.IsSuccessStatusCode) return Ok();
-        return StatusCode(500);
+        var result = await _categoriesService.CreateCategory(form);
+        return result.Success ? Ok() : StatusCode(500, result.Message);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(Guid id, [FromBody] CategoryWebRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] CategoryFormModel form)
     {
-        var client = _httpClientFactory.CreateClient("api");
-        var json = JsonSerializer.Serialize(new { name = request.Name, description = request.Description, platformId = request.PlatformId });
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PatchAsync($"/api/v1/categories/{id}", content);
-
-        if (response.IsSuccessStatusCode) return Ok();
-        return StatusCode(500);
+        var result = await _categoriesService.UpdateCategory(id, form);
+        return result.Success ? Ok() : StatusCode(500, result.Message);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var client = _httpClientFactory.CreateClient("api");
-        var response = await client.DeleteAsync($"/api/v1/categories/{id}");
-
-        if (response.IsSuccessStatusCode) return Ok();
-        return StatusCode(500);
+        var result = await _categoriesService.DeleteCategory(id);
+        return result.Success ? Ok() : StatusCode(500, result.Message);
     }
-}
-
-public class CategoryWebRequest
-{
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public Guid? PlatformId { get; set; }
 }

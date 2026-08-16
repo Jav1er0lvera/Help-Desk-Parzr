@@ -483,3 +483,9 @@ $RECYCLE.BIN/
 
 # Claude Code skills (locales, no versionados)
 .claude/skills/
+
+# Documentación de trabajo local (planes, notas) — no versionada
+docs/
+
+# Scratch de ejecución por subagentes (ledger, briefs, reportes) — no versionado
+.superpowers/
