@@ -33,12 +33,13 @@ public class CategoriesService : BaseService
     public Task<ServiceResult<CategoryListViewModel>> GetAllCategories() =>
         ExecuteAsync(async () =>
         {
-            var categories = await _categoriesApi.GetAllAsync();
-            if (categories is null || categories.Count == 0)
-                return ServiceResult<CategoryListViewModel>.Warn("Aún no hay categorías.");
-
-            // CategoryDto solo trae PlatformId; traemos plataformas y resolvemos el nombre.
+            // Cargamos plataformas SIEMPRE: el modal de crear/editar las necesita aunque
+            // todavía no exista ninguna categoría. El estado "vacío" lo pinta la vista por
+            // Model.Categories.Count == 0, no por el mensaje del ServiceResult.
+            var categories = await _categoriesApi.GetAllAsync() ?? [];
             var platforms = await _platformsApi.GetAllAsync() ?? [];
+
+            // CategoryDto solo trae PlatformId; el mapper resuelve el nombre con las plataformas.
             var vm = new CategoryListViewModel
             {
                 Categories = categories.MapToViewModel(platforms),
