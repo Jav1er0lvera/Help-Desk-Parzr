@@ -12,19 +12,19 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddHelpDeskSdk(this IServiceCollection services, string baseUrl)
     {
-        services.AddRefitClient<ITicketsApi>()
+        services.AddRefitGeneratedClient<ITicketsApi>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl));
 
-        services.AddRefitClient<IUsersApi>()
+        services.AddRefitGeneratedClient<IUsersApi>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl));
 
-        services.AddRefitClient<ICategoriesApi>()
+        services.AddRefitGeneratedClient<ICategoriesApi>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl));
 
-        services.AddRefitClient<IPlatformsApi>()
+        services.AddRefitGeneratedClient<IPlatformsApi>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl));
 
-        services.AddRefitClient<ICommentsApi>()
+        services.AddRefitGeneratedClient<ICommentsApi>()
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseUrl));
 
         return services;
