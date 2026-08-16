@@ -227,6 +227,10 @@ public class ServiceResult<T>
 ```csharp
 public abstract class BaseService
 {
+    private readonly ILogger _logger;                // ILogger NATIVO de .NET (MS.Logging), NO Serilog
+
+    protected BaseService(ILogger logger) => _logger = logger;
+
     protected abstract string ServiceName { get; }
 
     protected async Task<ServiceResult<T>> ExecuteAsync<T>(
@@ -238,23 +242,29 @@ public abstract class BaseService
         try { return await action(); }
         catch (OperationCanceledException)          // cancelación NO es error
         {
-            Log.Warning("{Service}.{Method} - cancelada.", ServiceName, method);
-            return ServiceResult<T>.Fail("La operación fue cancelada.");
+            _logger.LogWarning("{Service}.{Method} - operación cancelada.", ServiceName, method);
+            return ServiceResult<T>.Fail(ErrorMessages.OperationCancelled);
         }
         catch (Refit.ApiException ex)               // error del lado de la API
         {
-            Log.Error("API - {Service}.{Method} falló. Status: {Status}. Detalle: {Detail}",
+            _logger.LogError("API - {Service}.{Method} falló. Status: {Status}. Detalle: {Detail}",
                 ServiceName, method, ex.StatusCode, ex.Content ?? ex.Message);
             return ServiceResult<T>.Fail(apiErrorMessage);
         }
         catch (Exception ex)                        // error del lado del Web
         {
-            Log.Error(ex, "WEB - {Service}.{Method} falló.", ServiceName, method);
+            _logger.LogError(ex, "WEB - {Service}.{Method} falló.", ServiceName, method);
             return ServiceResult<T>.Fail(webErrorMessage);
         }
     }
 }
 ```
+
+> **Logging = `ILogger` nativo de .NET, no Serilog.** `BaseService` recibe un `ILogger`
+> por constructor y escribe con `_logger.LogWarning/LogError` (structured logging con
+> `{Campos}`). Cada servicio concreto inyecta su `ILogger<TSuClase>` y lo pasa con
+> `: base(logger)`. Así los logs llegan solos al dashboard de Aspire vía el provider de
+> OpenTelemetry que registra `AddServiceDefaults()`. Detalle completo en [LOGGING.md](LOGGING.md).
 
 ### Por qué centralizar el `try/catch` en `BaseService.ExecuteAsync`
 
@@ -280,9 +290,18 @@ public abstract class BaseService
 public class CategoriesService : BaseService
 {
     private readonly ICategoriesApi _categoriesApi;   // el SDK, NO HttpClient
+    private readonly IPlatformsApi _platformsApi;     // para resolver PlatformName (ver nota abajo)
     protected override string ServiceName => nameof(CategoriesService);
 
-    public CategoriesService(ICategoriesApi categoriesApi) => _categoriesApi = categoriesApi;
+    // Inyecta su ILogger<CategoriesService> y lo pasa a BaseService con : base(logger).
+    public CategoriesService(
+        ICategoriesApi categoriesApi,
+        IPlatformsApi platformsApi,
+        ILogger<CategoriesService> logger) : base(logger)
+    {
+        _categoriesApi = categoriesApi;
+        _platformsApi = platformsApi;
+    }
 
     public Task<ServiceResult<CategoryListViewModel>> GetAllCategories() =>
         ExecuteAsync(async () =>
@@ -291,7 +310,13 @@ public class CategoriesService : BaseService
             if (categories is null || categories.Count == 0)          // null-safe
                 return ServiceResult<CategoryListViewModel>.Warn("Aún no hay categorías.");
 
-            var vm = new CategoryListViewModel { Categories = categories.MapToViewModel() };
+            // CategoryDto solo trae PlatformId; traemos las plataformas y resolvemos el nombre.
+            var platforms = await _platformsApi.GetAllAsync();
+            var vm = new CategoryListViewModel
+            {
+                Categories = categories.MapToViewModel(platforms),
+                Platforms = platforms,   // para el <select> del modal (server-render)
+            };
             return ServiceResult<CategoryListViewModel>.Ok(vm);
         },
         apiErrorMessage: ErrorMessages.ApiCategoriesListError,
@@ -299,15 +324,26 @@ public class CategoriesService : BaseService
 }
 ```
 
+> **Decisión — `PlatformName`:** `CategoryDto` solo expone `PlatformId`. En vez de dejar
+> `"—"`, el servicio también pide las plataformas (`IPlatformsApi.GetAllAsync()`) y el mapper
+> resuelve el nombre por `PlatformId`; si no hay match, cae a `"—"`. Esto conserva el
+> comportamiento actual (la vista mostraba el nombre de la plataforma) sin tocar el
+> `PlatformsController` ni su vista.
+
 ### ViewModel + Mapper
 
 ```csharp
-public class CategoryListViewModel { public List<CategoryViewModel> Categories { get; set; } = new(); }
+public class CategoryListViewModel
+{
+    public List<CategoryViewModel> Categories { get; set; } = [];
+    public List<PlatformDto> Platforms { get; set; } = [];   // para el <select> del modal
+}
 
 public class CategoryViewModel
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public Guid? PlatformId { get; set; }             // para prellenar el modal de edición
     public string PlatformName { get; set; } = "—";   // resuelto en el mapper, no en la vista
     public string Description { get; set; } = "—";
     public DateTime CreatedAt { get; set; }
@@ -315,15 +351,21 @@ public class CategoryViewModel
 
 public static class CategoryMappings
 {
-    public static List<CategoryViewModel> MapToViewModel(this List<CategoryDto> dtos) =>
-        dtos.Select(d => new CategoryViewModel
+    // Recibe las plataformas para resolver el nombre por PlatformId (el DTO solo trae el Id).
+    public static List<CategoryViewModel> MapToViewModel(
+        this List<CategoryDto> dtos, List<PlatformDto> platforms)
+    {
+        var platformNames = platforms.ToDictionary(p => p.Id, p => p.Name);
+        return dtos.Select(d => new CategoryViewModel
         {
             Id = d.Id,
             Name = d.Name,
             Description = string.IsNullOrWhiteSpace(d.Description) ? "—" : d.Description,
             PlatformId = d.PlatformId,
+            PlatformName = d.PlatformId is Guid pid && platformNames.TryGetValue(pid, out var n) ? n : "—",
             CreatedAt = d.CreatedAt
         }).ToList();
+    }
 }
 ```
 
