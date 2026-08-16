@@ -1,0 +1,74 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Iniciar sesión";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión — HelpDesk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body>
+<div class="screen active" id="screen-login">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0z"/></svg>
+                <span>HelpDesk</span>
+            </div>
+            <h2>Bienvenido de vuelta</h2>
+            <p>Ingresa tus datos para acceder al sistema</p>
+        </div>
+        <form asp-controller="Account" asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <div class="auth-body">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-error show">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+                        <span>Correo o contraseña incorrectos.</span>
+                    </div>
+                }
+                <div class="field">
+                    <label>Correo electrónico</label>
+                    <input type="email" name="Email" placeholder="tu@correo.com" required>
+                </div>
+                <div class="field">
+                    <label>Contraseña</label>
+                    <div class="input-wrap">
+                        <input type="password" name="Password" id="login-pass" placeholder="••••••••" required>
+                        <button type="button" class="toggle-pass" onclick="togglePass('login-pass')" tabindex="-1">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="remember-row">
+                    <label><input type="checkbox" name="RememberMe"> Recordarme</label>
+                    <span class="forgot-link">¿Olvidaste tu contraseña?</span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Iniciar sesión</button>
+                <div class="divider">o</div>
+                <div class="auth-link">¿No tienes cuenta? <a asp-controller="Account" asp-action="Register">Regístrate gratis</a></div>
+                <div class="auth-link" style="margin-top:-8px"><a asp-controller="Home" asp-action="Index" style="color:var(--text-muted);font-weight:400">← Volver al inicio</a></div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="toast" id="toast">
+    <svg width="16" height="16" fill="none" stroke="#10B981" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+    <span id="toast-msg"></span>
+</div>
+<script src="~/js/auth.js" asp-append-version="true"></script>
+<script>
+    // Si el usuario llega al login con sesión activa, redirigir al dashboard
+    // Si llega al login después de cerrar sesión, limpiar el historial
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function() {
+        history.pushState(null, null, location.href);
+    });
+</script>
+</body>
+</html>

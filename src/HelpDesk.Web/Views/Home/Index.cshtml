@@ -1,0 +1,64 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Inicio";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpDesk — Parzr LLC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body>
+<div class="screen active" id="screen-landing">
+    <nav class="nav">
+        <div class="nav-logo">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0z"/></svg>
+            <div><span>HelpDesk</span><small>by Parzr LLC</small></div>
+        </div>
+        <div class="nav-links">
+            <span class="nav-link">Funciones</span>
+            <span class="nav-link">Precios</span>
+            <span class="nav-link">Contacto</span>
+            <a class="btn btn-outline" asp-controller="Account" asp-action="Login">Iniciar sesión</a>
+            <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Crear cuenta</a>
+        </div>
+    </nav>
+    <div class="hero">
+        <div class="hero-badge"><span></span>Sistema de soporte técnico</div>
+        <h1>Resuelve problemas.<br><em>No los pierdas de vista.</em></h1>
+        <p>Centraliza todos los tickets de soporte de tu empresa en un solo lugar. Tu equipo técnico los atiende, tu empresa los rastrea.</p>
+        <div class="hero-btns">
+            <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Register">Empezar gratis </a>
+            <a class="btn btn-outline btn-lg" asp-controller="Account" asp-action="Login">Ya tengo cuenta</a>
+        </div>
+    </div>
+    <div class="features">
+        <div class="feat-card">
+            <div class="feat-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 0 0-2 2v3a2 2 0 0 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 1 0-4V7a2 2 0 0 0-2-2H5z"/></svg>
+            </div>
+            <h3>Tickets en tiempo real</h3>
+            <p>Crea, asigna y resuelve tickets con seguimiento completo del historial y comentarios.</p>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+            </div>
+            <h3>Roles y permisos</h3>
+            <p>Usuarios, técnicos y administradores con accesos diferenciados según su función.</p>
+        </div>
+        <div class="feat-card">
+            <div class="feat-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
+            </div>
+            <h3>Métricas y reportes</h3>
+            <p>Panel con KPIs, tiempos de resolución y carga de trabajo por técnico en tiempo real.</p>
+        </div>
+    </div>
+    <div class="stats"></div>
+</div>
+</body>
+</html>

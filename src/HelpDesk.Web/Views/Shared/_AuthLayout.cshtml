@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] — HelpDesk | Parzr LLC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body>
+
+    @RenderBody()
+
+    <div class="toast" id="toast">
+        <svg width="16" height="16" fill="none" stroke="#10B981" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+        <span id="toast-msg"></span>
+    </div>
+
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

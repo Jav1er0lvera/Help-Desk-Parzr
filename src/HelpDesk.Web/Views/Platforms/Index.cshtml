@@ -1,0 +1,198 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Plataformas";
+    var userName = User.Identity?.Name ?? "Usuario";
+    var userInitials = string.Join("", userName.Split(' ').Take(2).Select(w => w[0].ToString().ToUpper()));
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataformas — HelpDesk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/helpdesk.css" asp-append-version="true" />
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0z"/></svg>
+        <div><span>HelpDesk</span><small>Parzr LLC</small></div>
+    </div>
+    <div class="nav-section">Principal</div>
+    <a class="nav-item" asp-controller="Home" asp-action="Dashboard">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+    </a>
+    <a class="nav-item" asp-controller="Home" asp-action="Dashboard">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 0 0-2 2v3a2 2 0 0 1 0 4v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a2 2 0 0 1 0-4V7a2 2 0 0 0-2-2H5z"/></svg>
+        Tickets
+    </a>
+    <div class="nav-section">Admin</div>
+    <a class="nav-item active" asp-controller="Platforms" asp-action="Index">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0 4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0-5.571 3-5.571-3"/></svg>
+        Plataformas
+    </a>
+    <a class="nav-item" asp-controller="Categories" asp-action="Index">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/><path d="M6 6h.008v.008H6V6Z"/></svg>
+        Categorías
+    </a>
+    <div class="sidebar-footer">
+        <div class="user-chip">
+            <div class="avatar av-blue">@userInitials</div>
+            <div class="user-info">
+                <span>@userName</span>
+                <small>Supervisor</small>
+            </div>
+        </div>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="margin-top:8px">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-ghost" style="width:100%;justify-content:center;font-size:12px;padding:6px">
+                Cerrar sesión
+            </button>
+        </form>
+    </div>
+</nav>
+
+<div class="main">
+    <div class="topbar">
+        <span class="topbar-title">Plataformas</span>
+        <button class="btn btn-primary" onclick="openModal()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Nueva plataforma
+        </button>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Plataformas del sistema</span>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Nombre</th><th>Descripción</th><th>Fecha</th><th></th></tr>
+                </thead>
+                <tbody id="platforms-body">
+                    <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modal-title">Nueva plataforma</h3>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-id" value="">
+            <div class="field-group">
+                <label>Nombre</label>
+                <input type="text" id="plat-name" placeholder="Ej: Aplicaciones móviles">
+            </div>
+            <div class="field-group">
+                <label>Descripción</label>
+                <textarea id="plat-desc" placeholder="Describe esta plataforma..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+            <button class="btn btn-primary" onclick="savePlatform()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast">
+    <svg width="16" height="16" fill="none" stroke="#10B981" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+    <span id="toast-msg"></span>
+</div>
+
+@Html.AntiForgeryToken()
+
+<script>
+const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+async function loadPlatforms() {
+    const response = await fetch('/Platforms/GetAll');
+    if (!response.ok) return;
+    const platforms = await response.json();
+    const tbody = document.getElementById('platforms-body');
+    if (platforms.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px">No hay plataformas aún</td></tr>';
+        return;
+    }
+    tbody.innerHTML = platforms.map(p => `
+        <tr>
+            <td><div class="t-title">${p.name}</div></td>
+            <td style="color:var(--text-secondary);font-size:13px">${p.description ?? '—'}</td>
+            <td class="t-date">${new Date(p.createdAt).toLocaleDateString('es-MX')}</td>
+            <td>
+                <button class="btn btn-ghost row-action" style="padding:5px 10px;font-size:12px"
+                    onclick="openEditModal('${p.id}', '${p.name}', '${p.description ?? ''}')">
+                    Editar
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openModal() {
+    document.getElementById('modal-title').textContent = 'Nueva plataforma';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('plat-name').value = '';
+    document.getElementById('plat-desc').value = '';
+    document.getElementById('modal').classList.add('show');
+}
+
+function openEditModal(id, name, desc) {
+    document.getElementById('modal-title').textContent = 'Editar plataforma';
+    document.getElementById('edit-id').value = id;
+    document.getElementById('plat-name').value = name;
+    document.getElementById('plat-desc').value = desc;
+    document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+async function savePlatform() {
+    const id = document.getElementById('edit-id').value;
+    const name = document.getElementById('plat-name').value.trim();
+    const description = document.getElementById('plat-desc').value.trim();
+
+    if (!name) { alert('El nombre es obligatorio.'); return; }
+
+    const url = id ? `/Platforms/Update/${id}` : '/Platforms/Create';
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+        body: JSON.stringify({ name, description })
+    });
+
+    if (response.ok) {
+        closeModal();
+        showToast(id ? 'Plataforma actualizada ✓' : 'Plataforma creada ✓');
+        await loadPlatforms();
+    } else {
+        showToast('Error al guardar la plataforma');
+    }
+}
+
+let toastTimer;
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener('DOMContentLoaded', loadPlatforms);
+</script>
+
+</body>
+</html>
