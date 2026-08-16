@@ -1,0 +1,30 @@
+{
+  // Depuración paso a paso con Aspire.
+  // 1) Arranca la app:  aspire run --project src/HelpDesk.AppHost
+  // 2) Pon breakpoints (F9) en el Web y/o la API.
+  // 3) Ejecuta una de estas configs (F5) y elige el proceso en el selector:
+  //      - "Attach → HelpDesk.Web"  -> elige el proceso  HelpDesk.Web
+  //      - "Attach → HelpDesk.API"  -> elige el proceso  HelpDesk.API
+  //    Puedes lanzar las dos a la vez (o usar el compound) para cruzar Web -> API.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach → HelpDesk.Web",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
+    },
+    {
+      "name": "Attach → HelpDesk.API",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Attach → Web + API (flujo completo)",
+      "configurations": ["Attach → HelpDesk.Web", "Attach → HelpDesk.API"]
+    }
+  ]
+}

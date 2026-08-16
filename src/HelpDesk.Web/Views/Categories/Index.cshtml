@@ -173,7 +173,7 @@ async function editCategory(id) {
     const response = await fetch(`/Categories/GetById/${id}`);
     if (!response.ok) { showToast('No se pudo cargar la categoría'); return; }
     const c = await response.json();   // { name, description, platformId }
-
+    //console.log('editCategory', c);
     document.getElementById('modal-title').textContent = 'Editar categoría';
     document.getElementById('edit-id').value = id;
     document.getElementById('cat-name').value = c.name ?? '';
