@@ -13,10 +13,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
+builder.Services.AddExceptionHandler<HelpDesk.API.GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddDbContext<HelpDeskDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("helpdesk")));
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 using (var scope = app.Services.CreateScope())
 {

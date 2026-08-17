@@ -1,9 +1,7 @@
-using HelpDesk.Domain.Categories;
-using HelpDesk.Domain.Platforms;
-using HelpDesk.Infrastructure.Persistence;
-
+using HelpDesk.API.Mapping;
+using HelpDesk.Application.Categories;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HelpDesk.API.Controllers;
 
@@ -11,79 +9,39 @@ namespace HelpDesk.API.Controllers;
 [Route("api/v1/categories")]
 public class CategoriesController : ControllerBase
 {
-    private readonly HelpDeskDbContext _db;
+    private readonly IMediator _mediator;
 
-    public CategoriesController(HelpDeskDbContext db)
-    {
-        _db = db;
-    }
+    public CategoriesController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var categories = await _db.Categories
-            .Where(c => !c.IsDeleted)
-            .ToListAsync();
-        return Ok(categories);
-    }
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+        => Ok(await _mediator.Send(new GetAllCategoriesQuery(), ct));
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
-        var category = await _db.Categories
-            .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-        if (category is null) return NotFound();
-        return Ok(category);
+        var dto = await _mediator.Send(new GetCategoryByIdQuery(id), ct);
+        return dto is null ? NotFound() : Ok(dto);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CategoryRequest request)
+    public async Task<IActionResult> Create([FromBody] CategoryRequest request, CancellationToken ct)
     {
-        var exists = await _db.Categories.AnyAsync(c => c.Name == request.Name);
-        if (exists)
-            return BadRequest("Ya existe una categoría con ese nombre.");
-
-        var category = new Category
-        {
-            Name = request.Name.Trim(),
-            Description = request.Description?.Trim(),
-            PlatformId = request.PlatformId
-        };
-
-        _db.Categories.Add(category);
-        await _db.SaveChangesAsync();
-        return Ok(category);
+        var dto = await _mediator.Send(request.ToCreateCommand(), ct);
+        return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
     }
 
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] CategoryRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] CategoryRequest request, CancellationToken ct)
     {
-        var category = await _db.Categories.FindAsync(id);
-        if (category is null) return NotFound();
-
-        category.Name = request.Name.Trim();
-        category.Description = request.Description?.Trim();
-        category.PlatformId = request.PlatformId;
-        await _db.SaveChangesAsync();
-        return Ok(category);
+        var dto = await _mediator.Send(request.ToUpdateCommand(id), ct);
+        return dto is null ? NotFound() : Ok(dto);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var category = await _db.Categories.FindAsync(id);
-        if (category is null) return NotFound();
-
-        category.IsDeleted = true;
-        await _db.SaveChangesAsync();
-
-        return NoContent();
+        var deleted = await _mediator.Send(new DeleteCategoryCommand(id), ct);
+        return deleted ? NoContent() : NotFound();
     }
-}
-
-public class CategoryRequest
-{
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public Guid? PlatformId { get; set; }
 }
