@@ -16,6 +16,10 @@ public class TicketsController : Controller
         _httpClientFactory = httpClientFactory;
     }
 
+    [Authorize]
+    [HttpGet]
+    public IActionResult Index() => View();
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([FromBody] CreateTicketWebRequest request)
