@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Security.Claims;
 using System.Text.Json;
 
 using HelpDesk.Web.Models;
@@ -25,41 +24,7 @@ public class HomeController : Controller
 
     [Authorize]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<IActionResult> Dashboard()
-    {
-        var client = _httpClientFactory.CreateClient("api");
-        var tickets = new List<TicketViewModel>();
-        var role = User.FindFirstValue(ClaimTypes.Role) ?? "Usuario";
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        try
-        {
-            var response = await client.GetAsync("/api/v1/tickets");
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var allTickets = JsonSerializer.Deserialize<List<TicketViewModel>>(json, new JsonSerializerOptions
-     {
-                    PropertyNameCaseInsensitive = true
-                }) ?? [];
-
-                // Filtrar según rol
-                tickets = role switch
-                {
-                    "Supervisor" => allTickets,
-                    "Soporte" => allTickets.Where(t => t.AssignedToUserId.ToString() == userId).ToList(),
-                    _ => allTickets.Where(t => t.CreatedByUserId.ToString() == userId).ToList()
-                };
-            }
-        }
-        catch (Exception ex)
-        {
-            ViewBag.Error = ex.Message;
-        }
-
-        ViewBag.Role = role;
-        return View(tickets);
-    }
+    public IActionResult Dashboard() => View();
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

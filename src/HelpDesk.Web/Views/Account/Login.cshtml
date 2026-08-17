@@ -1,17 +1,7 @@
 @{
-    Layout = null;
+    Layout = "_AuthLayout";
     ViewData["Title"] = "Iniciar sesión";
 }
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión — HelpDesk</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
-</head>
-<body>
 <div class="screen active" id="screen-login">
     <div class="auth-card">
         <div class="auth-header">
@@ -57,18 +47,14 @@
         </form>
     </div>
 </div>
-<div class="toast" id="toast">
-    <svg width="16" height="16" fill="none" stroke="#10B981" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
-    <span id="toast-msg"></span>
-</div>
-<script src="~/js/auth.js" asp-append-version="true"></script>
-<script>
-    // Si el usuario llega al login con sesión activa, redirigir al dashboard
-    // Si llega al login después de cerrar sesión, limpiar el historial
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', function() {
+
+@section Scripts {
+    <script>
+        // Si el usuario llega al login con sesión activa, redirigir al dashboard
+        // Si llega al login después de cerrar sesión, limpiar el historial
         history.pushState(null, null, location.href);
-    });
-</script>
-</body>
-</html>
+        window.addEventListener('popstate', function() {
+            history.pushState(null, null, location.href);
+        });
+    </script>
+}
