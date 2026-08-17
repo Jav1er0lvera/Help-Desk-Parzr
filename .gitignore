@@ -489,3 +489,6 @@ docs/
 
 # Scratch de ejecución por subagentes (ledger, briefs, reportes) — no versionado
 .superpowers/
+
+# Documentación local del proyecto (no versionada)
+docs/project-documentation/
